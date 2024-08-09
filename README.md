@@ -3,14 +3,14 @@
 To use it, you need to clone this repository folder to your "qmk_firmware/keyboards/sofle/keymaps" directory
 
 ```bash
-  git clone https://github.com/FlavioZanoni/kbd-config ${QMK_FIRMWARE_PATH}/keyboards/sofle/keymaps/gallon
+git clone git@github.com:FlavioZanoni/kbd-config.git ${QMK_FIRMWARE_PATH}/keyboards/sofle/keymaps/gallon
 ```
 
 Then you can compile and flash the firmware to your keyboard.
 
 ```bash
-   qmk compile -kb sofle -km gallon
-   qmk flash -kb sofle -km gallon
+qmk compile -kb sofle -km gallon
+qmk flash -kb sofle -km gallon
 ```
 
 ## Layers
