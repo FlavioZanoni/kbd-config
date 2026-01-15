@@ -71,16 +71,15 @@ enum sofle_layers {
     _ADJUST,
 };
 
-enum custom_keycodes { KC_QWERTY = SAFE_RANGE, KC_02, KC_csgo };
+enum custom_keycodes { KC_QWERTY, KC_02, KC_csgo, RGB_MOD = SAFE_RANGE };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_QWERTY] = LAYOUT(KC_GRV, KC_1, KC_2, KC_3, KC_4, KC_5, KC_6, KC_7, KC_8, KC_9, KC_0, KC_DEL, KC_ESC, KC_Q, KC_W, KC_E, KC_R, KC_T, KC_Y, KC_U, KC_I, KC_O, KC_P, KC_BSPC, KC_LSFT, KC_A, KC_S, KC_D, KC_F, KC_G, KC_H, KC_J, KC_K, KC_L, KC_SCLN, KC_QUOT, KC_TAB, KC_Z, KC_X, KC_C, KC_V, KC_B, KC_MUTE, RGB_MOD, KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_RSFT, KC_LGUI, KC_LALT, MO(1), KC_LCTL, KC_SPC, KC_ENT, KC_RGUI, TO(1), KC_RALT, KC_RCTL),
 
-    [_02] = LAYOUT(KC_GRV, KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6, KC_F6, KC_F8, KC_F10, KC_F11, KC_F12, KC_ESC, KC_ASTR, KC_PIPE, KC_QUES, KC_MINS, KC_EQL, KC_LPRN, KC_RPRN, KC_PERC, KC_AMPR, KC_HASH, KC_BSPC, KC_LSFT, KC_LBRC, KC_RBRC, KC_LCBR, KC_RCBR, KC_EXLM, KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, KC_DLR, KC_QUOT, KC_TAB, KC_HOME, KC_PGUP, KC_PGDN, KC_END, KC_PSCR, KC_MUTE, RGB_MOD, KC_LT, KC_GT, KC_SCLN, KC_COLN, KC_BSLS, KC_RSFT, KC_LGUI, KC_LALT, RGB_RMOD, KC_LCTL, KC_SPC, KC_ENT, KC_RGUI, TO(2), KC_RALT, KC_RCTL),
+    [_02] = LAYOUT(KC_GRV, KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6, KC_F6, KC_F8, KC_F10, KC_F11, KC_F12, KC_ESC, KC_ASTR, KC_PIPE, KC_QUES, KC_MINS, KC_EQL, KC_LPRN, KC_RPRN, KC_PERC, KC_AMPR, KC_HASH, KC_BSPC, KC_LSFT, KC_LBRC, KC_RBRC, KC_LCBR, KC_RCBR, KC_EXLM, KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, KC_DLR, KC_QUOT, KC_TAB, KC_HOME, KC_PGUP, KC_PGDN, KC_END, KC_PSCR, KC_MUTE, RGB_MOD, KC_LT, KC_GT, KC_SCLN, KC_COLN, KC_BSLS, KC_RSFT, KC_LGUI, KC_LALT, RGB_MOD, KC_LCTL, KC_SPC, KC_ENT, KC_RGUI, TO(2), KC_RALT, KC_RCTL),
 
     [_csgo] = LAYOUT(KC_GRV, KC_1, KC_2, KC_3, KC_4, KC_5, KC_6, KC_7, KC_8, KC_9, KC_0, KC_DEL, KC_ESC, KC_Q, KC_W, KC_E, KC_R, KC_T, KC_Y, KC_U, KC_I, KC_O, KC_P, KC_BSPC, KC_LSFT, KC_A, KC_S, KC_D, KC_F, KC_G, KC_H, KC_J, KC_K, KC_L, KC_SCLN, KC_QUOT, KC_LCTL, KC_Z, KC_X, KC_C, KC_V, KC_B, KC_MUTE, RGB_MOD, KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_RSFT, KC_LGUI, KC_LALT, MO(1), KC_TAB, KC_SPC, KC_ENT, KC_RGUI, TO(0), KC_RALT, KC_RCTL),
-
 
 };
 
@@ -161,7 +160,8 @@ bool oled_task_user(void) {
 
 #endif
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+static uint8_t rgb_mode_counter = 0;
+bool           process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case KC_QWERTY:
             if (record->event.pressed) {
@@ -186,6 +186,27 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 update_tri_layer(_csgo, _02, _ADJUST);
             }
             return false;
+        case RGB_MOD:
+            if (record->event.pressed) {
+                rgb_mode_counter++;
+                if (rgb_mode_counter <= 4) {
+                    rgblight_sethsv(0, 255, 100); // Reset to full saturation/color
+                    rgblight_enable();
+                    rgblight_step();
+                } else if (rgb_mode_counter == 5) {
+                    rgblight_enable();
+                    rgblight_mode(RGBLIGHT_MODE_STATIC_LIGHT);
+                    rgblight_sethsv(0, 0, 50);
+                } else if (rgb_mode_counter == 6) {
+                    rgblight_enable();
+                    rgblight_mode(RGBLIGHT_MODE_STATIC_LIGHT);
+                    rgblight_sethsv(0, 0, 20);
+                } else {
+                    rgblight_disable();
+                    rgb_mode_counter = 0;
+                }
+            }
+            return false;
     }
     return true;
 }
@@ -201,9 +222,9 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
         }
     } else if (index == 1) {
         if (clockwise) {
-            tap_code(KC_WH_D);
+            tap_code(KC_BRIU);
         } else {
-            tap_code(KC_WH_U);
+            tap_code(KC_BRID);
         }
     }
     return true;
